@@ -1,0 +1,22 @@
+{
+  "name": "4-crud-code-along",
+  "version": "1.0.0",
+  "description": "Coding along with lhack and nhinja",
+  "main": "index-common-js.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "intro-nodejs-workbook"
+  },
+  "keywords": [
+    "leap",
+    "year"
+  ],
+  "author": "phil of the future",
+  "license": "ISC",
+  "dependencies": {
+    "moment": "^2.30.1"
+  }
+}
