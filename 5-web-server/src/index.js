@@ -1,13 +1,14 @@
 const express = require('express'); 
-const fs = require('fs'); 
+const fs = require('fs').promises; // allows return that you can work with in async 
 
 const app = express();
 const port = 3000;
-app.use(express.json());
+app.use(express.json()); // express is going to use json to pass data back and forth
 
 app.listen(port, () => {
     console.log(`My server is listening on port: ${port}`)
 });
+
 
 // app.get("/", (req, res) => {
 //     res.send('<h1>hi mom</h1><p>I had a sandwich yesterday</p>');
@@ -17,7 +18,7 @@ app.listen(port, () => {
 // app.get("/users/:user", (req, res) => {
 //     const myData = {
 //         // access 'user' variable
-//         id: req.params,
+//         id: req.params, // this knows that it is the user variable
 //         email: 'test@test.test'
 //     }
 //     const myJSONData = JSON.stringify(myData);
@@ -25,38 +26,42 @@ app.listen(port, () => {
 // });
 
 // Helper functions
-// const getAllBooks = () => {
-//     fs.readFile("../data.json", "utf8", async (err, data) => {
-//         let books = await JSON.parse(data);
-//         return books;
-//     });
-// };
 const getAllBooks = async () => {
-    try {
-        const data = await fs.readFile('../data.json', 'utf8');
-        return JSON.parse(data);
-
-    } catch (err) {
-        console.error("Error reading file:", err)
-        throw err;
-    }
+   const books = await fs.readFile("../data.json", "utf8");
+   const parsedBooks = JSON.parse(books);
+   return parsedBooks;
 };
 
-// API Endpoints
+const getOneBook = async (id) => {
+    const books = await fs.readFile("../data.json", "utf8");
+    const parsedBook = JSON.parse(books)[id];
+    return parsedBook;
+}
 
-// The client has requested all of the books
+const deleteBook = async (id) => {
+    const books = await fs.readFile("../data.json", "utf8");
+    let parsedBooks = JSON.parse(books);
+    parsedBooks.splice(id, 1);
+    const stringBooks = JSON.stringify(parsedBooks);
+    await fs.writeFile("../data.json", stringBooks, "utf8")
+}
+
+
 // API Endpoints
-app.get("/books", async (req, res) => {
-    try {
+// The client has requested all of the books
+app.get("/books",async (req, res) => {
         const books = await getAllBooks();
-        res.json(books); // Use res.json for auto conversion
-    } catch (err) {
-        res.status(500).json({ error: "Failed to fetch books" });
-    }
+        res.send(JSON.stringify(books))
 });
 
-// // The client has requested one book
-// app.get("/books/:id", async (req, res) => {
-//     const book = await getBook(request.params.id);
-//     res.send(JSON.stringify(book));
-// });
+// The client has requested one book
+app.get("/book/:id", async (req, res) => {
+    const book = await getOneBook(req.params.id);
+    res.send(JSON.stringify(book));
+});
+
+// Client has requested to delete a book
+app.get("/delete-book/:id", async (req, res) => {
+    await deleteBook(req.params.id);
+    res.send("you deleted the book!")
+})
