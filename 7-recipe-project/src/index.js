@@ -31,6 +31,14 @@ const deleteRecipe = async (id) => {
     fs.writeFile("../data/recipe-data.json", stringRecipes, "utf8")
 }
 
+const updateRecipe = async (id, name) => {
+    const recipes = await fs.readFile("../data/recipe-data.json", "utf8");
+    const parsedRecipes = JSON.parse(recipes);
+    console.log(parsedRecipes[id].name)
+    parsedRecipes[id].name = name;
+    const stringRecipes = JSON.stringify(parsedRecipes);
+    fs.writeFile("../data/recipe-data.json", stringRecipes, "utf8")
+}
 
 // API ENDPOINTS
 // find all recipes
@@ -51,4 +59,10 @@ app.get("/recipe/:id", async (req, res) => {
 app.get("/delete-recipe/:id", async (req, res) => {
     await deleteRecipe(req.params.id);
     res.send("bye bye recipe") 
+})
+
+// update one recipe name
+app.get("/update-recipe/:id/:newname", async (req, res) => {
+    await updateRecipe(req.params.id, req.params.newname);
+    res.send("recipe name is different") 
 })
