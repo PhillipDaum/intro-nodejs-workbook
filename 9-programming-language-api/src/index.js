@@ -24,7 +24,7 @@ const getAllLanguages = async () => {
 
 const getOneLanguage = async (id) => {
   await client.connect(); //connecting to our database
-  let result = await client.query(`SELECT ${id} FROM programming_languages`); 
+  let result = await client.query(`SELECT * FROM programming_languages WHERE id = ${id}`); 
   await client.end(); //ending the connection to our database
   return result.rows;
 }
