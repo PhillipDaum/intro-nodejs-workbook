@@ -21,6 +21,38 @@ const getAllLanguages = async () => {
   return result.rows;
 };
 
+const getAllLanguagesSortByYear = async () => {
+  const client = new Client(config); //creating our database Client with our config values
+  await client.connect(); //connecting to our database
+  let result = await client.query(
+    "SELECT * FROM programming_languages ORDER BY released_year"
+  );
+  await client.end(); //ending the connection to our database
+  return result.rows;
+};
+
+const getAllLanguagesSortByCol = async (colId) => {
+  const client = new Client(config); //creating our database Client with our config values
+  await client.connect(); //connecting to our database
+  // change
+  let result = await client.query(
+    `SELECT * FROM programming_languages ORDER BY ${colId}`
+  );
+  await client.end(); //ending the connection to our database
+  return result.rows;
+};
+
+const getAllLanguagesSearchByTerm = async (term) => {
+  const client = new Client(config); //creating our database Client with our config values
+  await client.connect(); //connecting to our database
+  // change
+  let result = await client.query(
+    `SELECT * FROM programming_languages WHERE LOWER(name) LIKE LOWER('%${term}%')`
+  );
+  await client.end(); //ending the connection to our database
+  return result.rows;
+};
+
 const getOneLanguage = async (id) => {
   const client = new Client(config); //creating our database Client with our config values
   await client.connect(); //connecting to our database
@@ -35,13 +67,35 @@ const addOneLanguage = async (obj) => {
   console.log(obj);
   const client = new Client(config); //creating our database Client with our config values
   await client.connect(); //connecting to our database
-  await client.query(`INSERT INTO programming_languages (id, name, released_year, githut_rank, pypl_rank, tiobe_rank) VALUEs ('17', '${obj.name}', ${obj.releasedYear}, ${obj.githutRank}, ${obj.pyplRank}, ${obj.tiobeRank});`)
-}
+  await client.query(
+    `INSERT INTO programming_languages (id, name, released_year, githut_rank, pypl_rank, tiobe_rank) VALUEs ('17', '${obj.name}', ${obj.releasedYear}, ${obj.githutRank}, ${obj.pyplRank}, ${obj.tiobeRank});`
+  );
+};
 
 // API ENDPOINTS
 // Get All languages
 app.get("/get-all-languages", async (req, res) => {
   let languages = await getAllLanguages();
+  let JSONLanguages = JSON.stringify(languages);
+  res.send(JSONLanguages);
+});
+// Get all languages - sort by year
+app.get("/get-all-languages/sort-by-year", async (req, res) => {
+  let languages = await getAllLanguagesSortByYear();
+  let JSONLanguages = JSON.stringify(languages);
+  res.send(JSONLanguages);
+});
+
+// Get all languages - sort by column
+app.get("/get-all-languages/sort-by/:col", async (req, res) => {
+  let languages = await getAllLanguagesSortByCol(req.params.col);
+  let JSONLanguages = JSON.stringify(languages);
+  res.send(JSONLanguages);
+});
+
+// Get all languages - name contains a certain term
+app.get("/get-all-languages/search-languages-by-name/:term", async (req, res) => {
+  let languages = await getAllLanguagesSearchByTerm(req.params.term);
   let JSONLanguages = JSON.stringify(languages);
   res.send(JSONLanguages);
 });
@@ -56,5 +110,6 @@ app.get("/get-one-language/:id", async (req, res) => {
 // Add one language
 app.post("/add-one-language", async (req, res) => {
   await addOneLanguage(req.body);
-  res.send("Success! You added a language.")
-})
+  res.send("Success! You added a language.");
+});
+
